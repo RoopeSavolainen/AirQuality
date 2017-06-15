@@ -1,5 +1,10 @@
 #include <Wire.h>
 
+/*
+ * A very simple library for reading data from a Honeywell HIH6120 temperature/humidity sensor
+ * and communicating the measurements to another device via serial.
+ */
+
 const uint8_t sensor = 0x27;
 
 uint8_t meas[4];
@@ -19,14 +24,29 @@ void setup()
 
 void loop()
 {
-	do {
-        measure();
-	} while (status != 0); // Status 1 means stale data.
+    char command;
+    String response;
 
-	String msg = "Temperature:\t" + (String)temperature + "\nHumidity:\t" + (String)humidity + "\n";
-	Serial.print(msg);
+    if (Serial.available() > 0)
+    {
+        command = Serial.read();
+        
+        switch (command)
+        {
+            case 'm':
+                do {
+                    measure();
+                } while (status != 0); // Status 1 indicates stale data
 
-	delay(1000);
+                response = (String)temperature + " " + (String)humidity;
+                Serial.print(response);
+                break;
+            default:    // Faulty/non-implemented command
+                break;
+        }
+    }    
+
+    delay(500);
 }
 
 void measure()
