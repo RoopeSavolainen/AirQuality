@@ -24,11 +24,12 @@ def read_measurements():
     return response.decode().split(' ')
 
 
-def create_db():
+def create_db(db=None):
     with open(DB_SCHEMA, 'r') as schema_file:
         schema = schema_file.read()
 
-    db = sqlite3.connect(DB_FILE)
+    if db is None:
+        db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
 
     cur.executescript(schema)
@@ -36,11 +37,12 @@ def create_db():
     db.close()
 
 
-def save_measurement(name, value, date):
-    with open(DB_INSERT) as insert_file:
+def save_measurement(name, value, date, db=None):
+    with open(DB_INSERT, 'r') as insert_file:
         insert = insert_file.read()
 
-    db = sqlite3.connect(DB_FILE)
+    if db is None:
+        db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
 
     cur.execute(insert, (name, value, date))
