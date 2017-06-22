@@ -1,6 +1,7 @@
 import serial
 import sqlite3
 import time
+import datetime
 
 MEASUREMENT_COMMAND = b'm'
 SERIAL_DEVICE = '/dev/ttyUSB0'
@@ -37,7 +38,14 @@ def create_db(db=None):
     db.close()
 
 
-def save_measurement(name, value, date, db=None):
+def add_measurement():
+    res = read_measurements()
+    date = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+    _save_measurement('Temperature', res[0], date)
+    _save_measurement('Humidity', res[1], date)
+
+
+def _save_measurement(name, value, date, db=None):
     with open(DB_INSERT, 'r') as insert_file:
         insert = insert_file.read()
 
